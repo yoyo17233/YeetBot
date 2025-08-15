@@ -4,7 +4,6 @@ from utils.utils import *
 console_buffer = []
 
 def poll_log_file(filepath, loop, console, chat, bot):
-    global usernames
     usernames = get_usernames()
     last_position = os.path.getsize(filepath)
 
@@ -15,7 +14,6 @@ def poll_log_file(filepath, loop, console, chat, bot):
                 file_size = f.tell()
 
                 if file_size < last_position:
-                    # Log rotated or truncated
                     last_position = 0
 
                 f.seek(last_position)
@@ -61,7 +59,6 @@ def get_usernames():
     usernames = [entry["name"] for entry in data]
     return usernames
 
-# Start buffer flushing coroutine once at bot startup
 async def start_log_buffer_task(bot, consolechannel):
     while True:
         if console_buffer:
@@ -73,7 +70,7 @@ async def start_log_buffer_task(bot, consolechannel):
                 joined = left
             console_buffer.clear()
             await consolechannel.send(f"```{joined}```")
-        await asyncio.sleep(1)  # flush every 1 second
+        await asyncio.sleep(1)
 
 async def startlogging(self, guild_id):
     update_server_info("logging", 1)

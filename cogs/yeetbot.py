@@ -55,7 +55,7 @@ class YeetBot(commands.Cog):
             await interaction.response.send_message("Server is already starting up, calm your tits!")
             return
 
-        await interaction.response.defer()  # Safely acknowledge the interaction
+        await interaction.response.defer()
         msg = await interaction.followup.send(f"Starting {get_server_info(interaction.guild.id).get("server_")} server...", wait=True)
         await startserver(self, msg, interaction.guild_id)
 
@@ -71,7 +71,7 @@ class YeetBot(commands.Cog):
         command("stop")
         await interaction.response.send_message(f"❌ {get_server_info().get("serverid")} Server is now offline! ❌")
         await self.bot.change_presence(
-            activity=discord.Game("Server Offline ❌"),  # "Playing Minecraft Server"
+            activity=discord.Game("Server Offline ❌"),
         )
 
     @app_commands.command(name="restart", description="Restarts the currently selected minecraft server")
@@ -137,12 +137,12 @@ class YeetBot(commands.Cog):
         if is_server_up():
             serverstarting = False
             await self.bot.change_presence(
-                activity=discord.Game(f"{get_server_info().get("serverid")}✅"),  # "Playing Minecraft Server"
+                activity=discord.Game(f"{get_server_info().get("serverid")}✅"),
             )
             await message.edit(content=f"✅ {get_server_info().get("serverid")} Server is online! ✅")
         else:
             await self.bot.change_presence(
-                activity=discord.Game("Server Offline ❌"),  # "Playing Minecraft Server"
+                activity=discord.Game("Server Offline ❌"),
             )
             await message.edit(content=f"❌ {get_server_info().get("serverid")} Server is offline! ❌")
 

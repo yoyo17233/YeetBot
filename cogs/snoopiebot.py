@@ -44,7 +44,6 @@ class SnoopieBot(commands.Cog):
             guild_obj = self.bot.get_guild(int(guild_id))
             if guild_obj is None:
                 print(f"[{guild_id}] Bot is no longer in that guild; pruning from config.")
-                # Optionally remove it so you don't keep trying forever
                 guilds.pop(guild_id, None)
                 continue
             
@@ -78,7 +77,7 @@ class SnoopieBot(commands.Cog):
     @app_commands.command(name="gemini", description="Ask Gemini anything!")
     @has_snoopie_perm()
     async def gemini(self, interaction: discord.Interaction, message: str):
-        await interaction.response.defer()  # shows "thinking..."
+        await interaction.response.defer()
         status_msg = await interaction.followup.send("Asking Gemini...", wait=True)
         response = await ask_gemini(message)
         await status_msg.edit(content=f"{response}")
