@@ -1,10 +1,9 @@
 import asyncio, os, time, json, threading
-from utils.utils import *
+from utils.utilities import get_server_info, update_server_info, load_config
 
 console_buffer = []
 
 def poll_log_file(filepath, loop, console, chat, bot):
-    usernames = get_usernames()
     last_position = os.path.getsize(filepath)
 
     while True:
@@ -53,6 +52,7 @@ async def send_log_to_discord(message, consolechannel, chatchannel, botchannel):
                 return
 
 def get_usernames():
+    from utils.minecraft import build_whitelist
     path = build_whitelist(get_server_info().get("serverid"))
     with open(path, "r") as f:
         data = json.load(f)
@@ -73,7 +73,10 @@ async def start_log_buffer_task(bot, consolechannel):
         await asyncio.sleep(1)
 
 async def startlogging(self, guild_id):
+    from utils.minecraft import build_log
+    print("attempting to start logging")
     update_server_info("logging", 1)
+    print("logging started")
     loop = asyncio.get_running_loop()
     config = load_config()
 

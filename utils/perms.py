@@ -1,7 +1,7 @@
 import discord
 from discord.app_commands import CheckFailure
 from discord import app_commands
-from utils.utils import load_config
+from utils.utilities import load_config
 
 config = load_config()
 

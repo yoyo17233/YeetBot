@@ -4,8 +4,9 @@ from discord.ext import commands
 from discord import app_commands
 from discord.app_commands import AppCommandError, CheckFailure
 from utils.polling import *
-from utils.utils import *
+from utils.utilities import *
 from utils.perms import *
+from utils.minecraft import *
 
 load_dotenv()
 
@@ -135,7 +136,7 @@ class YeetBot(commands.Cog):
         await interaction.response.defer()
         message = await interaction.followup.send("Pinging server...", wait=True)
         if is_server_up():
-            serverstarting = False
+            update_server_info("serverstarting", 0)
             await self.bot.change_presence(
                 activity=discord.Game(f"{get_server_info().get("serverid")}✅"),
             )

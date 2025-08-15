@@ -1,11 +1,10 @@
-import os, socket, asyncio, threading, time, discord
+import os, discord
 from dotenv import load_dotenv
 from discord.ext import commands
 from discord import app_commands
 from discord.app_commands import AppCommandError, CheckFailure
-from mcrcon import MCRcon
 from utils.polling import *
-from utils.utils import *
+from utils.utilities import *
 from utils.perms import *
 
 load_dotenv()

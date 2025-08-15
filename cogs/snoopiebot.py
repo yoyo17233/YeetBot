@@ -3,7 +3,7 @@ from discord.ext import commands, tasks
 from dotenv import load_dotenv
 from discord import app_commands
 from discord.app_commands import AppCommandError, CheckFailure
-from utils.utils import *
+from utils.utilities import *
 from utils.perms import has_snoopie_perm, is_admin
 
 load_dotenv()
@@ -79,8 +79,30 @@ class SnoopieBot(commands.Cog):
     async def gemini(self, interaction: discord.Interaction, message: str):
         await interaction.response.defer()
         status_msg = await interaction.followup.send("Asking Gemini...", wait=True)
-        response = await ask_gemini(message)
-        await status_msg.edit(content=f"{response}")
+        loop = asyncio.get_running_loop()
+        response = await loop.run_in_executor(None, ask_gemini, message)
+
+        chunks = []
+        max_len = 2000
+        text = response
+
+        while len(text) > max_len:
+            cutoff = text.rfind('.', 0, max_len)
+            if cutoff == -1:
+                cutoff = max_len
+
+            chunks.append(text[:cutoff+1].strip())
+            text = text[cutoff+1:].strip()
+
+        if len(chunks) < 3 and text:
+            chunks.append(text)
+        elif len(text) > 0:
+            chunks.append("Message too long, message trimmed")
+
+        await status_msg.edit(content=chunks[0])
+
+        for chunk in chunks[1:]:
+            await interaction.followup.send(chunk)
 
     @app_commands.command(name="sendallsnoopiefact", description="Gets a random Snoopie fact")
     @is_admin()

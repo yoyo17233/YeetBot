@@ -2,7 +2,8 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
-from utils.utils import *
+from utils.utilities import update_server_info, get_server_info, load_config
+from utils.minecraft import is_server_up
 from cogs.yeetbot import startlogging
 
 load_dotenv()
@@ -24,6 +25,7 @@ async def on_ready():
     try:
         synced = await bot.tree.sync()
         print(f"🔁 Synced {len(synced)} slash commands")
+        update_server_info("serverstarting", 0)
         if is_server_up():
             await bot.change_presence(
                 activity=discord.Game(f"{get_server_info().get('serverid')} ✅"),
