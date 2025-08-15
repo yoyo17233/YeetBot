@@ -1,0 +1,22 @@
+{
+    "guilds": {
+        "804197191589691423": {
+            "snoopie_channel_id": 1388814396540584046,
+            "snoopie_role_id": 1388807718428606525,
+            "snoopie_perms_role_id": 805646721408696360,
+            "mc_perms_role_id": 1394496967081590875,
+            "mc_console_perms_role_id": 805646721408696360,
+            "mc_bot_channel_id": 875145448128667698,
+            "mc_chat_channel_id": 1389054542384992277,
+            "mc_console_channel_id": 1389054494867849226,
+            "ServerInfo": {
+                "logging": 0,
+                "serverstarting": 0,
+                "serverid": "Oceanblock2"
+            }
+        }
+    },
+    "admins": [
+        242420160227573760
+    ]
+}
