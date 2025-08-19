@@ -1,11 +1,15 @@
 import asyncio, os, time, json, threading
 from utils.utilities import get_server_info, update_server_info, load_config
 
+VERBOSE = True
+
 console_buffer = []
 
-def poll_log_file(filepath, loop, console, chat, bot):
+def poll_log_file(guild_id, loop, console, chat, bot):
+    from utils.minecraft import build_log
+    filepath = build_log(get_server_info(guild_id).get("serverid"))
     last_position = os.path.getsize(filepath)
-
+    if(VERBOSE): print("reading...")
     while True:
         try:
             with open(filepath, "r", encoding="utf-8") as f:
@@ -20,10 +24,12 @@ def poll_log_file(filepath, loop, console, chat, bot):
                 last_position = f.tell()
 
             for line in new_lines:
+                if(VERBOSE): print("newlines found")
                 line = line.strip()
                 if line:
+                    if(VERBOSE): print("line found = " + line)
                     asyncio.run_coroutine_threadsafe(
-                        send_log_to_discord(line, console, chat, bot),
+                        send_log_to_discord(guild_id, line, console, chat, bot),
                         loop
                     )
 
@@ -32,28 +38,47 @@ def poll_log_file(filepath, loop, console, chat, bot):
 
         time.sleep(1)
 
-async def send_log_to_discord(message, consolechannel, chatchannel, botchannel):
-    usernames = get_usernames()
+async def send_log_to_discord(guild_id, message, consolechannel, chatchannel, botchannel):
+    if(VERBOSE): print("sending line to discord...")
+    usernames = get_usernames(guild_id)
+    if(VERBOSE): print("usernames are: " + str(usernames))
+    if(VERBOSE): print("1")
     if not message.strip():
         return
+    if(VERBOSE): print("2")
     if consolechannel:
         if "NetworkRegistry/]: No registration for payload oritech:particles; refusing to decode." in message and "<" not in message:
             return
+        if(VERBOSE): print("3")
         console_buffer.append(message)
     if chatchannel:
+        if(VERBOSE): print("4")
         if "<" in message and ">" in message and "[Rcon] <" not in message:
-            newmessage = message[message.index('<'):]
-            await chatchannel.send(f"```{newmessage}```")
+            if(VERBOSE): print("5")
+            newmessage = message[message.index('<')+1:]
+            if(VERBOSE): print("newmessage is: " + newmessage)
+            if(VERBOSE): print("usernames are: " + str(usernames))
+            if newmessage.startswith(tuple(usernames)):
+                if(VERBOSE): print("6")
+                await chatchannel.send(f"```{message[message.index('<'):]}```")
+                return
     if botchannel:
         if "[Server thread/INFO] [net.minecraft.server.MinecraftServer/]: " in message and "<" not in message:
             newmessage = message[message.index('[Server thread/INFO] [net.minecraft.server.MinecraftServer/]:') + 62:]
             if newmessage.startswith(tuple(usernames)):
-                await botchannel.send(f"```{newmessage}```")
-                return
+                if(get_server_info(guild_id).get("deathmsg") == "bot"):
+                    await botchannel.send(f"```{newmessage}```")
+                    return
+                elif(get_server_info(guild_id).get("deathmsg") == "chat"):
+                    await chatchannel.send(f"```{newmessage}```")
+                    return
+                else:
+                    print("server has no setup location for death messages")
+                    return
 
-def get_usernames():
+def get_usernames(guild_id):
     from utils.minecraft import build_whitelist
-    path = build_whitelist(get_server_info().get("serverid"))
+    path = build_whitelist(get_server_info(guild_id).get("serverid"))
     with open(path, "r") as f:
         data = json.load(f)
     usernames = [entry["name"] for entry in data]
@@ -73,7 +98,6 @@ async def start_log_buffer_task(bot, consolechannel):
         await asyncio.sleep(1)
 
 async def startlogging(self, guild_id):
-    from utils.minecraft import build_log
     print("attempting to start logging")
     update_server_info("logging", 1)
     print("logging started")
@@ -84,5 +108,5 @@ async def startlogging(self, guild_id):
     console = await self.bot.fetch_channel(config.get("guilds").get(str(guild_id)).get("mc_console_channel_id"))
     chat = await self.bot.fetch_channel(config.get("guilds").get(str(guild_id)).get("mc_chat_channel_id"))
 
-    threading.Thread(target=poll_log_file, args=(build_log(get_server_info().get("serverid")), loop, console, chat, botchannel), daemon=True).start()
+    threading.Thread(target=poll_log_file, args=(guild_id, loop, console, chat, botchannel), daemon=True).start()
     loop.create_task(start_log_buffer_task(self.bot, console))

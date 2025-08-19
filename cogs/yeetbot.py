@@ -8,28 +8,37 @@ from utils.utilities import *
 from utils.perms import *
 from utils.minecraft import *
 
+VERBOSE = True
+
 load_dotenv()
 
 config = load_config()
 
 RCON_PASSWORD = os.getenv("RCON_PASSWORD")
-RCON_PORT = int(os.getenv("RCON_PORT"))
 LOGFILE = os.getenv("LOGFILE")
 POLLSECONDS = 3
 
 all_servers = [server for guild in config["guilds"].values() for server in guild["ServerList"]]
 
-        
 async def handle_message(self, message):
+    if(VERBOSE): print("handling message...")
     if message.author == self.bot.user:
         return
+    if(VERBOSE): print("message is not from a bot...")
+    if(VERBOSE): print("message content = " + message.content)
+    if(VERBOSE): print("message channel = " + str(message.channel.id))
     if message.channel.id == config.get("guilds").get(str(message.guild.id)).get("mc_chat_channel_id"):
-        command(f"say <{message.author.global_name}> {message.content}", message.guild)
-    
+        if(VERBOSE): print("channel matched, sending command")
+        command(f"say <{message.author.global_name}> {message.content}", message.guild.id)
+        if(VERBOSE): print("success chat send")
     elif message.channel.id == config.get("guilds").get(str(message.guild.id)).get("mc_console_channel_id"):
+        if(VERBOSE): print("correct console channel")
         if has_mc_console_perm(message.guild, message.author):
-            response = command(message.content)
+            if(VERBOSE): print("yes perms")
+            response = command(message.content, message.guild.id)
+            if(VERBOSE): print("response gotten, response looks like: " + response)
             if response.strip():
+                if(VERBOSE): print("sending message...")
                 await message.channel.send(f"```{response}```")
 
 class YeetBot(commands.Cog):

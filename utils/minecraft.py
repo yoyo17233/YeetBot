@@ -1,6 +1,5 @@
-import os, asyncio, socket, time, discord
+import os, asyncio, socket, time
 from dotenv import load_dotenv
-from discord import app_commands
 from mcrcon import MCRcon
 from utils.utilities import update_server_info, animate, get_server_info
 
@@ -12,6 +11,8 @@ RUNFILE = os.getenv("RUNFILE")
 WHITELIST = "whitelist.json"
 
 POLLSECONDS = 3
+
+VERBOSE = True
 
 hostname = socket.gethostname()
 local_ip = socket.gethostbyname(hostname)
@@ -36,14 +37,22 @@ def build_whitelist(text):
 
 def command(command_name, guild_id):
         try:
-            print(f"Executing command: {command_name}")
+            if(VERBOSE):print(f"Executing command: {command_name}")
+            if(VERBOSE):print("DEBUG guild_id:", guild_id)
+            if(VERBOSE):print("DEBUG server_info:", get_server_info(guild_id))
             port = get_server_info(guild_id).get("serverport")
+            if(VERBOSE):print("port retrieved as " + str(port))
             rconport = port + 10
+            if(VERBOSE):print("RCON_IP: " + RCON_IP)
+            if(VERBOSE):print("RCON_PASS: " + RCON_PASSWORD)
+            if(VERBOSE):print("RCON_PORT: " + str(rconport))
             with MCRcon(RCON_IP, RCON_PASSWORD, port=rconport) as mcr:
                 response = mcr.command(command_name)
-            print(f"Command response: {response}")
+            if response:
+                if(VERBOSE):print(f"Command response: {response}")
             return response
         except Exception as e:
+            print("error happened sending message")
             return e
         
 async def server_status_check(self, msg, guild_id):

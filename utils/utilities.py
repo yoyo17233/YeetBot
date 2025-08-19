@@ -20,8 +20,6 @@ hostname = socket.gethostname()
 local_ip = socket.gethostbyname(hostname)
 RCON_IP = local_ip
 RCON_PASSWORD = os.getenv("RCON_PASSWORD")
-RCON_PORT = int(os.getenv("RCON_PORT"))
-
 
 def load_config():
     with open(CONFIG_FILE, "r") as f:

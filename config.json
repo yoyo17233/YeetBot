@@ -10,10 +10,11 @@
             "mc_chat_channel_id": 1389054542384992277,
             "mc_console_channel_id": 1389054494867849226,
             "ServerInfo": {
-                "logging": 0,
+                "logging": 1,
                 "serverstarting": 0,
                 "serverid": "Oceanblock2",
-                "serverport": 25566
+                "serverport": 25566,
+                "deathmsg": "bot"
             },
             "ServerList": [
                 "Oceanblock2",
@@ -34,7 +35,8 @@
                 "logging": 0,
                 "serverstarting": 0,
                 "serverid": "WPIEsports",
-                "serverport": 25565
+                "serverport": 25565,
+                "deathmsg": "chat"
             },
             "ServerList": [
                 "WPIEsports"

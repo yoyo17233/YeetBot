@@ -6,6 +6,8 @@ from utils.utilities import update_server_info, get_server_info, load_config, sa
 from utils.minecraft import is_server_up
 from cogs.yeetbot import startlogging
 
+VERBOSE = True
+
 DEFAULT_GUILD_CONFIG = {
     "snoopie_channel_id": 1,
     "snoopie_role_id": 1,
@@ -80,4 +82,3 @@ async def setup_hook():
     await load_cogs()
 
 bot.run(TOKEN)
-input("Press Enter to exit...")
