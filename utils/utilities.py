@@ -1,4 +1,4 @@
-import json, os, asyncio, socket, time, discord
+import json, os, asyncio, socket
 from datetime import datetime, timedelta
 from google import genai
 from dotenv import load_dotenv

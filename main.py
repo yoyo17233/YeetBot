@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
-from utils.utilities import update_server_info, get_server_info, load_config
+from utils.utilities import update_server_info, get_server_info, load_config, save_config
 from utils.minecraft import is_server_up
 from cogs.yeetbot import startlogging
 
@@ -38,9 +38,20 @@ async def on_ready():
                 status=discord.Status.online,
             )
             update_server_info("logging", 0)
-        
+                
     except Exception as e:
         print(f"⚠️ Error syncing commands: {e}")
+    global config
+    updated = False
+
+    for guild in bot.guilds:
+        print("checking guild", guild.id)
+        if str(guild.id) not in config["guilds"]:
+            config["guilds"][str(guild.id)] = {}
+            updated = True
+
+    if updated:
+        save_config(config)
 
 async def load_cogs():
     await bot.load_extension("cogs.snoopiebot")
