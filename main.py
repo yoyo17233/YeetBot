@@ -6,6 +6,24 @@ from utils.utilities import update_server_info, get_server_info, load_config, sa
 from utils.minecraft import is_server_up
 from cogs.yeetbot import startlogging
 
+DEFAULT_GUILD_CONFIG = {
+    "snoopie_channel_id": 0,
+    "snoopie_role_id": 0,
+    "snoopie_perms_role_id": 0,
+    "mc_perms_role_id": 0,
+    "mc_console_perms_role_id": 0,
+    "mc_bot_channel_id": 0,
+    "mc_chat_channel_id": 0,
+    "mc_console_channel_id": 0,
+    "ServerInfo": {
+        "logging": 0,
+        "serverstarting": 0,
+        "serverid": "servername",
+        "serverport": 25565
+    },
+    "ServerList":["servername"]
+}
+
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 YEET = os.getenv("YEET")
@@ -25,20 +43,19 @@ async def on_ready():
     try:
         synced = await bot.tree.sync()
         print(f"🔁 Synced {len(synced)} slash commands")
-        update_server_info("serverstarting", 0)
-        if is_server_up():
-            await bot.change_presence(
-                activity=discord.Game(f"{get_server_info().get('serverid')} ✅"),
-                status=discord.Status.online
-            )
-            await startlogging(bot.get_cog("YeetBot"), YEET)
-        else:
-            await bot.change_presence(
-                activity=discord.Game("Server Offline ❌"),
-                status=discord.Status.online,
-            )
-            update_server_info("logging", 0)
-                
+        
+        await bot.change_presence(
+            activity=discord.Game(f"Minecraft ✅"),
+            status=discord.Status.online
+        )
+        for guild in bot.guilds:
+            update_server_info("serverstarting", 0, guild.id)
+            if is_server_up(guild.id):
+                print(f"Starting logging for guild {guild.id}")
+                await startlogging(bot.get_cog("YeetBot"), YEET)
+            else:
+                update_server_info("logging", 0)
+
     except Exception as e:
         print(f"⚠️ Error syncing commands: {e}")
     global config
@@ -47,7 +64,7 @@ async def on_ready():
     for guild in bot.guilds:
         print("checking guild", guild.id)
         if str(guild.id) not in config["guilds"]:
-            config["guilds"][str(guild.id)] = {}
+            config["guilds"][str(guild.id)] = DEFAULT_GUILD_CONFIG
             updated = True
 
     if updated:

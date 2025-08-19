@@ -1,7 +1,8 @@
 import os, asyncio, socket, time, discord
 from dotenv import load_dotenv
+from discord import app_commands
 from mcrcon import MCRcon
-from utils.utilities import update_server_info, animate, get_server_info
+from utils.utilities import update_server_info, animate, get_server_info, load_config, save_config
 
 load_dotenv()
 CONFIG_FILE = os.getenv("CONFIG_FILE")
@@ -17,12 +18,12 @@ hostname = socket.gethostname()
 local_ip = socket.gethostbyname(hostname)
 RCON_IP = local_ip
 RCON_PASSWORD = os.getenv("RCON_PASSWORD")
-RCON_PORT = int(os.getenv("RCON_PORT"))
 
-def is_server_up():
+def is_server_up(guild_id):
+    port = get_server_info(guild_id).get("serverport")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.settimeout(0.1)
-        result = sock.connect_ex(('127.0.0.1', 25565))
+        result = sock.connect_ex(('127.0.0.1', port))
         return result == 0
 
 def build_run(text):
@@ -34,15 +35,17 @@ def build_log(text):
 def build_whitelist(text):
     return f"{SERVER_DIR}{text}/{WHITELIST}"
 
-def command(command_name):
+def command(command_name, guild_id):
         try:
             print(f"Executing command: {command_name}")
-            with MCRcon(RCON_IP, RCON_PASSWORD, port=RCON_PORT) as mcr:
+            port = get_server_info(guild_id).get("serverport")
+            rconport = port + 10
+            with MCRcon(RCON_IP, RCON_PASSWORD, port=rconport) as mcr:
                 response = mcr.command(command_name)
             print(f"Command response: {response}")
             return response
         except Exception as e:
-            return
+            return e
         
 async def server_status_check(self, msg, guild_id):
     update_server_info("serverstarting", 1)
@@ -53,7 +56,7 @@ async def server_status_check(self, msg, guild_id):
             await msg.edit(content=f"❌ Server failed to start within 5 minutes.")
             update_server_info("serverstarting", 0)
             return
-        if is_server_up():
+        if is_server_up(guild_id):
             print("server is up")
             if not get_server_info().get("logging"):
                 print("log is off, starting log")
@@ -63,7 +66,7 @@ async def server_status_check(self, msg, guild_id):
             update_server_info("serverstarting", 0)
             print("serverstarting successfully set to 0")
             await msg.edit(content=f"✅ {get_server_info().get("serverid")} Server is now online! ✅")
-            await self.bot.change_presence(activity=discord.Game(f"{get_server_info().get("serverid")}✅"))
+            #await self.bot.change_presence(activity=discord.Game(f"{get_server_info().get("serverid")}✅"))
             return
         await asyncio.sleep(POLLSECONDS)
 

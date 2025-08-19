@@ -18,8 +18,8 @@ RCON_PORT = int(os.getenv("RCON_PORT"))
 LOGFILE = os.getenv("LOGFILE")
 POLLSECONDS = 3
 
-servers_str = os.getenv("SERVERS")
-servers = [(x.strip()) for x in servers_str.split(",") if x.strip()] 
+all_servers = [server for guild in config["guilds"].values() for server in guild["ServerList"]]
+
         
 async def handle_message(self, message):
     if message.author == self.bot.user:
@@ -48,11 +48,11 @@ class YeetBot(commands.Cog):
         if interaction.channel_id != config.get("guilds").get(str(interaction.guild.id)).get("mc_bot_channel_id"):
             await interaction.response.send_message("This channel is not set up for this command", ephemeral=True)
             return
-        if is_server_up():
+        if is_server_up(interaction.guild.id):
             await interaction.response.send_message("Server is already running!")
             return
 
-        if get_server_info().get("serverstarting"):
+        if get_server_info(interaction.guild.id).get("serverstarting"):
             await interaction.response.send_message("Server is already starting up, calm your tits!")
             return
 
@@ -66,14 +66,14 @@ class YeetBot(commands.Cog):
         if interaction.channel_id != config.get("guilds").get(str(interaction.guild.id)).get("mc_bot_channel_id"):
             await interaction.response.send_message("This channel is not set up for this command", ephemeral=True)
             return
-        if not is_server_up():
+        if not is_server_up(interaction.guild.id):
             await interaction.response.send_message("Server isn't running? Dumbass")
             return
         command("stop")
-        await interaction.response.send_message(f"❌ {get_server_info().get("serverid")} Server is now offline! ❌")
-        await self.bot.change_presence(
-            activity=discord.Game("Server Offline ❌"),
-        )
+        await interaction.response.send_message(f"❌ {get_server_info(interaction.guild.id).get("serverid")} Server is now offline! ❌")
+        #await self.bot.change_presence(
+        #    activity=discord.Game("Server Offline ❌"),
+        #)
 
     @app_commands.command(name="restart", description="Restarts the currently selected minecraft server")
     @has_mc_perm()
@@ -83,18 +83,18 @@ class YeetBot(commands.Cog):
             await interaction.response.send_message("This channel is not set up for this command", ephemeral=True)
             return
 
-        if not is_server_up() and not get_server_info().get("serverstarting"):
+        if not is_server_up(interaction.guild.id) and not get_server_info(interaction.guild.id).get("serverstarting"):
             await interaction.response.send_message("Server wasn't running... I suppose I'll start it though")
             await startserver(self.bot, interaction, interaction.guild_id)
-        elif not is_server_up() and get_server_info().get("serverstarting"):
+        elif not is_server_up(interaction.guild.id) and get_server_info(interaction.guild.id).get("serverstarting"):
             await interaction.response.send_message("Let it finish starting, goddamn it")
             return
         else:
             command("stop")
-            await interaction.response.send_message(f"❌ {get_server_info().get("serverid")} Server is now offline! ❌")
-            await self.bot.change_presence(
-                activity=discord.Game("Server Offline ❌"),
-            )
+            await interaction.response.send_message(f"❌ {get_server_info(interaction.guild.id).get("serverid")} Server is now offline! ❌")
+            #await self.bot.change_presence(
+            #    activity=discord.Game("Server Offline ❌"),
+            #)
             await interaction.response.send_message("Server stopped, now starting it again...")
             await startserver(self.bot, msg, interaction.guild_id)
 
@@ -103,7 +103,7 @@ class YeetBot(commands.Cog):
     @app_commands.choices(
     server=[
         app_commands.Choice(name="-", value="check"),
-        *[app_commands.Choice(name=server, value=server) for server in servers],
+        *[app_commands.Choice(name=server, value=server) for server in all_servers],
         ]
     )
     @has_mc_perm()
@@ -111,12 +111,14 @@ class YeetBot(commands.Cog):
         if interaction.channel_id != config.get("guilds").get(str(interaction.guild.id)).get("mc_bot_channel_id"):
             await interaction.response.send_message("This channel is not set up for this command", ephemeral=True)
             return
-        serverid = get_server_info().get("serverid")
+        serverid = get_server_info(interaction.guild.id).get("serverid")
         if server.value == "check":
             await interaction.response.send_message(f"Current server is set to: {serverid}")
             return
         else:
-            update_server_info("serverid", server.value)
+            if server.value not in config.get("guilds").get(str(interaction.guild.id)).get("ServerList"):
+                await interaction.response.send_message(f"Server {server.value} is not in the list of servers for this guild, please only set servers that are allowed for this guild")
+            update_server_info("serverid", server.value, interaction.guild.id)
             await interaction.response.send_message(f"Server has been changed to: {server.value}!")
             return
 
@@ -135,17 +137,17 @@ class YeetBot(commands.Cog):
             return
         await interaction.response.defer()
         message = await interaction.followup.send("Pinging server...", wait=True)
-        if is_server_up():
-            update_server_info("serverstarting", 0)
-            await self.bot.change_presence(
-                activity=discord.Game(f"{get_server_info().get("serverid")}✅"),
-            )
-            await message.edit(content=f"✅ {get_server_info().get("serverid")} Server is online! ✅")
+        if is_server_up(interaction.guild.id):
+            update_server_info("serverstarting", 0, interaction.guild.id)
+            #await self.bot.change_presence(
+            #    activity=discord.Game(f"{get_server_info(interaction.guild.id).get("serverid")}✅"),
+            #)
+            await message.edit(content=f"✅ {get_server_info(interaction.guild.id).get("serverid")} Server is online! ✅")
         else:
-            await self.bot.change_presence(
-                activity=discord.Game("Server Offline ❌"),
-            )
-            await message.edit(content=f"❌ {get_server_info().get("serverid")} Server is offline! ❌")
+            #await self.bot.change_presence(
+            #    activity=discord.Game("Server Offline ❌"),
+            #)
+            await message.edit(content=f"❌ {get_server_info(interaction.guild.id).get("serverid")} Server is offline! ❌")
 
     @app_commands.command(name="list", description="Lists the current players on the active server")
     @has_mc_perm()
@@ -153,7 +155,7 @@ class YeetBot(commands.Cog):
         if interaction.channel_id != config.get("guilds").get(str(interaction.guild.id)).get("mc_bot_channel_id"):
             await interaction.response.send_message("This channel is not set up for this command", ephemeral=True)
             return
-        if not is_server_up():
+        if not is_server_up(interaction.guild.id):
             await interaction.response.send_message("Server isn't on")
             return
         await interaction.response.send_message(f"```{command("list")}```")
@@ -164,10 +166,10 @@ class YeetBot(commands.Cog):
         if interaction.channel_id != config.get("guilds").get(str(interaction.guild.id)).get("mc_bot_channel_id"):
             await interaction.response.send_message("This channel is not set up for this command", ephemeral=True)
             return
-        if not is_server_up():
+        if not is_server_up(interaction.guild.id):
             await interaction.response.send_message("Server isn't on")
             return
-        if get_server_info().get("serverid") != "SkyFactory5":
+        if get_server_info(interaction.guild.id).get("serverid") != "SkyFactory5":
             await interaction.response.send_message(f"```{command("neoforge tps")}```")
             return
         await interaction.response.send_message(f"```{command("forge tps")}```")
@@ -178,7 +180,7 @@ class YeetBot(commands.Cog):
         if interaction.channel_id != config.get("guilds").get(str(interaction.guild.id)).get("mc_bot_channel_id"):
             await interaction.response.send_message("This channel is not set up for this command", ephemeral=True)
             return
-        if not is_server_up():
+        if not is_server_up(interaction.guild.id):
             await interaction.response.send_message("Server isn't on")
             return
         fullmessage = f"say {message}"

@@ -43,7 +43,7 @@ class IDSetterBot(commands.Cog):
     @app_commands.command(name="setmcchatchannel", description="Set the channel for Minecraft chat")
     @has_mc_perm()
     async def setmcchatchannel(self, interaction: discord.Interaction, channel: discord.TextChannel):
-        if interaction.channel_id != config.get("guilds").get(str(interaction.guild.id)).get("mc_chat_channel_id"):
+        if interaction.channel_id != config.get("guilds").get(str(interaction.guild.id)).get("mc_bot_channel_id"):
             await interaction.response.send_message("This channel is not set up for this command", ephemeral=True)
             return
         config["guilds"][str(interaction.guild_id)]["mc_chat_channel_id"] = channel.id

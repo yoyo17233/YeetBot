@@ -10,12 +10,36 @@
             "mc_chat_channel_id": 1389054542384992277,
             "mc_console_channel_id": 1389054494867849226,
             "ServerInfo": {
-                "logging": 1,
-                "serverstarting": 0,
-                "serverid": "Oceanblock2"
-            }
+                "logging": 0,
+                "serverstarting": 1,
+                "serverid": "Oceanblock2",
+                "serverport": 25566
+            },
+            "ServerList": [
+                "Oceanblock2",
+                "Skies2",
+                "SkyFactory5"
+            ]
         },
-        "197532699999731712": {}
+        "197532699999731712": {
+            "snoopie_channel_id": 1,
+            "snoopie_role_id": 1,
+            "snoopie_perms_role_id": 1,
+            "mc_perms_role_id": 210914065986486272,
+            "mc_console_perms_role_id": 210914065986486272,
+            "mc_bot_channel_id": 1407169628068905030,
+            "mc_chat_channel_id": 1407170764183965737,
+            "mc_console_channel_id": 1407170920442888223,
+            "ServerInfo": {
+                "logging": 0,
+                "serverstarting": 0,
+                "serverid": "servername",
+                "serverport": 25565
+            },
+            "ServerList": [
+                "servername"
+            ]
+        }
     },
     "admins": [
         242420160227573760
