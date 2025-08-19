@@ -9,7 +9,7 @@ def poll_log_file(guild_id, loop, console, chat, bot):
     from utils.minecraft import build_log
     filepath = build_log(get_server_info(guild_id).get("serverid"))
     last_position = os.path.getsize(filepath)
-    if(VERBOSE): print("reading...")
+    if(VERBOSE): print("reading... " + filepath)
     while True:
         try:
             with open(filepath, "r", encoding="utf-8") as f:
@@ -75,6 +75,16 @@ async def send_log_to_discord(guild_id, message, consolechannel, chatchannel, bo
                 else:
                     print("server has no setup location for death messages")
                     return
+        print("wpiesports checking message " + message + " for \" INFO]:\", and \"<\" not in message. Checking serverid " + get_server_info(guild_id).get("serverid") + " against WPIEsports")
+        if "] [Server thread/INFO]: " in message and "<" not in message and get_server_info(guild_id).get("serverid") == "WPIEsports":
+            newmessage = message[message.index('] [Server thread/INFO]: ') + 24:]
+            print("oldmessage = " + message)
+            print("newmessage = " + newmessage)
+            if newmessage.startswith(tuple(u + " " for u in usernames)) and not ":" in newmessage :
+                if(VERBOSE): print("6")
+                await chatchannel.send(f"```{newmessage}```")
+                return
+
 
 def get_usernames(guild_id):
     from utils.minecraft import build_whitelist
@@ -99,14 +109,18 @@ async def start_log_buffer_task(bot, consolechannel):
 
 async def startlogging(self, guild_id):
     print("attempting to start logging")
-    update_server_info("logging", 1)
-    print("logging started")
+    update_server_info("logging", 1, guild_id)
     loop = asyncio.get_running_loop()
+    print("this was fine 1")
     config = load_config()
+    print("this was fine 2")
 
     botchannel = await self.bot.fetch_channel(config.get("guilds").get(str(guild_id)).get("mc_bot_channel_id"))
     console = await self.bot.fetch_channel(config.get("guilds").get(str(guild_id)).get("mc_console_channel_id"))
     chat = await self.bot.fetch_channel(config.get("guilds").get(str(guild_id)).get("mc_chat_channel_id"))
+    print("this was fine 3")
 
     threading.Thread(target=poll_log_file, args=(guild_id, loop, console, chat, botchannel), daemon=True).start()
+    print("this was fine 4")
     loop.create_task(start_log_buffer_task(self.bot, console))
+    print("this was fine 5")

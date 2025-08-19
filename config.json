@@ -32,7 +32,7 @@
             "mc_chat_channel_id": 1407170764183965737,
             "mc_console_channel_id": 1407170920442888223,
             "ServerInfo": {
-                "logging": 0,
+                "logging": 1,
                 "serverstarting": 0,
                 "serverid": "WPIEsports",
                 "serverport": 25565,

@@ -36,7 +36,8 @@ async def handle_message(self, message):
         if has_mc_console_perm(message.guild, message.author):
             if(VERBOSE): print("yes perms")
             response = command(message.content, message.guild.id)
-            if(VERBOSE): print("response gotten, response looks like: " + response)
+            if(VERBOSE): 
+                if(response): print("response gotten, response looks like: " + response)
             if response.strip():
                 if(VERBOSE): print("sending message...")
                 await message.channel.send(f"```{response}```")

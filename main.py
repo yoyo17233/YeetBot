@@ -54,7 +54,7 @@ async def on_ready():
             update_server_info("serverstarting", 0, guild.id)
             if is_server_up(guild.id):
                 print(f"Starting logging for guild {guild.id}")
-                await startlogging(bot.get_cog("YeetBot"), YEET)
+                await startlogging(bot.get_cog("YeetBot"), guild.id)
             else:
                 update_server_info("logging", 0)
 

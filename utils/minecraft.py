@@ -56,9 +56,9 @@ def command(command_name, guild_id):
             return e
         
 async def server_status_check(self, msg, guild_id):
-    update_server_info("serverstarting", 1)
+    update_server_info("serverstarting", 1, guild_id)
     starttime = time.time()
-    asyncio.create_task(animate(msg))
+    asyncio.create_task(animate(msg, guild_id))
     while get_server_info(guild_id).get("serverstarting"):
         if time.time() - starttime > 300:
             await msg.edit(content=f"❌ Server failed to start within 5 minutes.")
@@ -71,17 +71,17 @@ async def server_status_check(self, msg, guild_id):
                 from utils.polling import startlogging
                 await startlogging(self, guild_id)
             print("serverstarting setting to 0...")
-            update_server_info("serverstarting", 0)
+            update_server_info("serverstarting", 0, guild_id)
             print("serverstarting successfully set to 0")
             await msg.edit(content=f"✅ {get_server_info(guild_id).get('serverid')} Server is now online! ✅")
-            #await self.bot.change_presence(activity=discord.Game(f"{get_server_info().get("serverid")}✅"))
+            #await self.bot.change_presence(activity=discord.Game(f"{get_server_info(guild_id).get("serverid")}✅"))
             return
         await asyncio.sleep(POLLSECONDS)
 
 async def startserver(self, msg, guild_id):
-    print("starting " + build_run(get_server_info().get("serverid")) + " server")
+    print("starting " + build_run(get_server_info(guild_id).get("serverid")) + " server")
     await asyncio.create_subprocess_shell(
-        build_run(get_server_info().get("serverid")),
+        build_run(get_server_info(guild_id).get("serverid")),
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
     )
