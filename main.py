@@ -7,19 +7,19 @@ from utils.minecraft import is_server_up
 from cogs.yeetbot import startlogging
 
 DEFAULT_GUILD_CONFIG = {
-    "snoopie_channel_id": 0,
-    "snoopie_role_id": 0,
-    "snoopie_perms_role_id": 0,
-    "mc_perms_role_id": 0,
-    "mc_console_perms_role_id": 0,
-    "mc_bot_channel_id": 0,
-    "mc_chat_channel_id": 0,
-    "mc_console_channel_id": 0,
+    "snoopie_channel_id": 1,
+    "snoopie_role_id": 1,
+    "snoopie_perms_role_id": 1,
+    "mc_perms_role_id": 1,
+    "mc_console_perms_role_id": 1,
+    "mc_bot_channel_id": 1,
+    "mc_chat_channel_id": 1,
+    "mc_console_channel_id": 1,
     "ServerInfo": {
         "logging": 0,
         "serverstarting": 0,
         "serverid": "servername",
-        "serverport": 25565
+        "serverport": 25567
     },
     "ServerList":["servername"]
 }
@@ -80,3 +80,4 @@ async def setup_hook():
     await load_cogs()
 
 bot.run(TOKEN)
+input("Press Enter to exit...")

@@ -11,7 +11,7 @@
             "mc_console_channel_id": 1389054494867849226,
             "ServerInfo": {
                 "logging": 0,
-                "serverstarting": 1,
+                "serverstarting": 0,
                 "serverid": "Oceanblock2",
                 "serverport": 25566
             },
@@ -33,11 +33,11 @@
             "ServerInfo": {
                 "logging": 0,
                 "serverstarting": 0,
-                "serverid": "servername",
+                "serverid": "WPIEsports",
                 "serverport": 25565
             },
             "ServerList": [
-                "servername"
+                "WPIEsports"
             ]
         }
     },

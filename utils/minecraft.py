@@ -2,10 +2,9 @@ import os, asyncio, socket, time, discord
 from dotenv import load_dotenv
 from discord import app_commands
 from mcrcon import MCRcon
-from utils.utilities import update_server_info, animate, get_server_info, load_config, save_config
+from utils.utilities import update_server_info, animate, get_server_info
 
 load_dotenv()
-CONFIG_FILE = os.getenv("CONFIG_FILE")
 
 SERVER_DIR = os.getenv("SERVER_DIR")
 LOG_LOCATION = os.getenv("LOG_LOCATION")
@@ -51,21 +50,21 @@ async def server_status_check(self, msg, guild_id):
     update_server_info("serverstarting", 1)
     starttime = time.time()
     asyncio.create_task(animate(msg))
-    while get_server_info().get("serverstarting"):
+    while get_server_info(guild_id).get("serverstarting"):
         if time.time() - starttime > 300:
             await msg.edit(content=f"❌ Server failed to start within 5 minutes.")
-            update_server_info("serverstarting", 0)
+            update_server_info("serverstarting", 0, guild_id)
             return
         if is_server_up(guild_id):
             print("server is up")
-            if not get_server_info().get("logging"):
+            if not get_server_info(guild_id).get("logging"):
                 print("log is off, starting log")
                 from utils.polling import startlogging
                 await startlogging(self, guild_id)
             print("serverstarting setting to 0...")
             update_server_info("serverstarting", 0)
             print("serverstarting successfully set to 0")
-            await msg.edit(content=f"✅ {get_server_info().get("serverid")} Server is now online! ✅")
+            await msg.edit(content=f"✅ {get_server_info(guild_id).get('serverid')} Server is now online! ✅")
             #await self.bot.change_presence(activity=discord.Game(f"{get_server_info().get("serverid")}✅"))
             return
         await asyncio.sleep(POLLSECONDS)

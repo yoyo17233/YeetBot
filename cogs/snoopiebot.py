@@ -8,7 +8,6 @@ from utils.perms import has_snoopie_perm, is_admin
 
 load_dotenv()
 
-CONFIG_FILE = os.getenv("CONFIG_FILE")
 introprompt = r"You are a fact expert writing in the style of Snapple facts. Generate a true, interesting, and surprising fact in a short, friendly tone. Make sure it is accurate, easy to understand, and sounds like it could be printed under a bottle cap. Use clear and concise wording, no more than 1–2 sentences. Begin the fact directly, like: “Did you know...” or “Honey never spoils...” Avoid common facts, urban legends, or anything misleading or unverified. Double-check that it is scientifically or historically correct."
 categorization = "Describe the fact in as few words as possible, such as \"flamingo group name\" for talking about a flamboyant of flamingos, or \"temperature of lightning\""
 consistantcopies = "Flamingo group name, temperature of lightning, Owl group name, snail sleep duration, ketchup medicine, holding nose prevents humming, eiffel tower thermal expansion, shortest war, venus day duration"

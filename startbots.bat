@@ -1,2 +1,3 @@
-start "" pythonw.exe main.py
+start "" python main.py
+pause
 exit
