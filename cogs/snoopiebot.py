@@ -49,8 +49,8 @@ class SnoopieBot(commands.Cog):
             channel_id = data.get("snoopie_channel_id")
             role_id = data.get("snoopie_role_id")
 
-            if not channel_id or not role_id:
-                print(f"[{guild_id}] missing channel/role, use /help for commands.")
+            if channel_id == 1 or role_id == 1:
+                print(f"[{guild_id}] missing channel/role")
                 continue
 
             print(f"Sending fact to guild {guild_id} in channel {channel_id} with role {role_id}")

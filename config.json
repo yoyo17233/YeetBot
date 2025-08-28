@@ -14,7 +14,7 @@
                 "serverstarting": 0,
                 "serverid": "Oceanblock2",
                 "serverport": 25566,
-                "deathmsg": "bot"
+                "deathmsg": "chat"
             },
             "ServerList": [
                 "Oceanblock2",

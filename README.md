@@ -22,7 +22,7 @@ Hey, this is a personal bot I'm mainly using for my Discord and Minecraft server
 - /sendallsnoopiefact    => Sends a snapple style fact to every discord server the bot is in that has a valid channel (Locked to bot admins - which is only me at the moment)
 Automatically sends a sendallsnoopiefact every day at 10am - as long as the bot is running
 
-## Role/Channel Setting Cog
+## Role + Channel Setting Cog
 
 - /setmcpermsrole        => Set the role that can use the minecraft commands
 - /setmcconsolepermsrole => Set the role that can use the minecraft console commands

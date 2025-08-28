@@ -1,3 +1,2 @@
-start "" python main.py
-pause
+start "" pythonw main.py
 exit
