@@ -1,9 +1,10 @@
 import os, asyncio, socket, time
 from dotenv import load_dotenv
 from mcrcon import MCRcon
-from utils.utilities import update_server_info, animate, get_server_info
+from utils.utilities import update_server_info, animate, get_server_info, load_config
 
 load_dotenv()
+config = load_config()
 
 SERVER_DIR = os.getenv("SERVER_DIR")
 LOG_LOCATION = os.getenv("LOG_LOCATION")
@@ -60,12 +61,13 @@ async def server_status_check(self, msg, guild_id):
     starttime = time.time()
     asyncio.create_task(animate(msg, guild_id))
     while get_server_info(guild_id).get("serverstarting"):
-        if time.time() - starttime > 300:
+        if time.time() - starttime > 180:
             await msg.edit(content=f"❌ Server failed to start within 5 minutes.")
             update_server_info("serverstarting", 0, guild_id)
             return
         if is_server_up(guild_id):
             print("server is up")
+            update_server_info("up", 1, guild_id)
             if not get_server_info(guild_id).get("logging"):
                 print("log is off, starting log")
                 from utils.polling import startlogging
@@ -86,3 +88,38 @@ async def startserver(self, msg, guild_id):
         stderr=asyncio.subprocess.PIPE
     )
     await server_status_check(self, msg, guild_id)
+
+async def checkserversup(self):
+    print("Checking if any servers are down...")
+    
+    for guild_id, guild_data in config.get("guilds").items():
+        print(f"Checking guild {guild_id}...")
+        
+        if not is_server_up(guild_id):
+            server_info = get_server_info(guild_id)
+            
+            if server_info.get("up"):
+                print(f"Server crashed for guild: {guild_id}, restarting...")
+                
+                try:   
+                    command("stop", guild_id)
+                    print("successfully stopped server (shouldn't even get here, right?)")
+                except: print("failed to stop server, already down")
+
+                channel_id = guild_data.get("mc_bot_channel_id")
+                botchannel = self.bot.get_channel(channel_id)
+                
+                previousrevive = server_info.get("lastrevival")
+                if time.time() - previousrevive < 600:
+                    print("Two crashes within 10 minutes, catestrophic error:")
+                    admin = guild_data.get("mc_console_perms_role_id")
+                    if botchannel:
+                        await botchannel.send(f"{server_info.get('serverid')} server has crashed twice in 10 minutes. Please check in <@&{admin}>")
+
+                if botchannel:
+                    msg = await botchannel.send(f"{server_info.get('serverid')} server appears to be down. Attempting to restart...")
+                    await startserver(self, msg, guild_id)
+                    print("successfully started server, hopefully...")
+                    update_server_info("lastrevival", time.time(), guild_id)
+                else:
+                    print(f"Could not find channel {channel_id} for guild {guild_id}.")

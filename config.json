@@ -11,10 +11,12 @@
             "mc_console_channel_id": 1389054494867849226,
             "ServerInfo": {
                 "logging": 1,
+                "up": 1,
                 "serverstarting": 0,
-                "serverid": "Oceanblock2",
+                "serverid": "Skies2",
                 "serverport": 25566,
-                "deathmsg": "chat"
+                "deathmsg": "chat",
+                "lastrevival": 0
             },
             "ServerList": [
                 "Oceanblock2",
@@ -27,16 +29,18 @@
             "snoopie_role_id": 1,
             "snoopie_perms_role_id": 1,
             "mc_perms_role_id": 210914065986486272,
-            "mc_console_perms_role_id": 210914065986486272,
+            "mc_console_perms_role_id": 1411179943194529913,
             "mc_bot_channel_id": 1407169628068905030,
             "mc_chat_channel_id": 1407170764183965737,
             "mc_console_channel_id": 1407170920442888223,
             "ServerInfo": {
                 "logging": 1,
+                "up": 1,
                 "serverstarting": 0,
                 "serverid": "WPIEsports",
                 "serverport": 25565,
-                "deathmsg": "chat"
+                "deathmsg": "chat",
+                "lastrevival": 1756522331.7244544
             },
             "ServerList": [
                 "WPIEsports"

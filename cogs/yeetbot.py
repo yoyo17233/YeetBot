@@ -1,6 +1,6 @@
 import os, discord
 from dotenv import load_dotenv
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord import app_commands
 from discord.app_commands import AppCommandError, CheckFailure
 from utils.polling import *
@@ -8,7 +8,7 @@ from utils.utilities import *
 from utils.perms import *
 from utils.minecraft import *
 
-VERBOSE = True
+VERBOSE = False
 
 load_dotenv()
 
@@ -45,7 +45,12 @@ async def handle_message(self, message):
 class YeetBot(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.checkservervalue.start()
         
+    @tasks.loop(minutes=1)
+    async def checkservervalue(self):
+        await checkserversup(self)
+
     @commands.Cog.listener()
     @has_mc_perm()
     async def on_message(self, message):
@@ -79,6 +84,7 @@ class YeetBot(commands.Cog):
             await interaction.response.send_message("Server isn't running? Dumbass")
             return
         command("stop", interaction.guild_id)
+        update_server_info("up", 0, interaction.guild_id)
         await interaction.response.send_message(f"❌ {get_server_info(interaction.guild.id).get('serverid')} Server is now offline! ❌")
         #await self.bot.change_presence(
         #    activity=discord.Game("Server Offline ❌"),
@@ -100,6 +106,7 @@ class YeetBot(commands.Cog):
             return
         else:
             command("stop", interaction.guild_id)
+            update_server_info("up", 0, interaction.guild_id)
             await interaction.response.send_message(f"❌ {get_server_info(interaction.guild.id).get('serverid')} Server is now offline! ❌")
             #await self.bot.change_presence(
             #    activity=discord.Game("Server Offline ❌"),

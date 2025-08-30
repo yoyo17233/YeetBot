@@ -21,7 +21,9 @@ DEFAULT_GUILD_CONFIG = {
         "logging": 0,
         "serverstarting": 0,
         "serverid": "servername",
-        "serverport": 25567
+        "serverport": 25567,
+        "deathmsg": "chat",
+        "lastrevival": 0
     },
     "ServerList":["servername"]
 }
@@ -53,10 +55,12 @@ async def on_ready():
         for guild in bot.guilds:
             update_server_info("serverstarting", 0, guild.id)
             if is_server_up(guild.id):
+                update_server_info("up", 1, guild.id)
                 print(f"Starting logging for guild {guild.id}")
                 await startlogging(bot.get_cog("YeetBot"), guild.id)
             else:
-                update_server_info("logging", 0)
+                update_server_info("up", 0, guild.id)
+                update_server_info("logging", 0, guild.id)
 
     except Exception as e:
         print(f"⚠️ Error syncing commands: {e}")
