@@ -115,6 +115,7 @@ async def checkserversup(self):
                     admin = guild_data.get("mc_console_perms_role_id")
                     if botchannel:
                         await botchannel.send(f"{server_info.get('serverid')} server has crashed twice in 10 minutes. Please check in <@&{admin}>")
+                        return
 
                 if botchannel:
                     msg = await botchannel.send(f"{server_info.get('serverid')} server appears to be down. Attempting to restart...")
