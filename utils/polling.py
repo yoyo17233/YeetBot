@@ -1,13 +1,11 @@
 import asyncio, os, time, json, threading
-from utils.utilities import get_server_info, update_server_info, load_config
+from utils.utilities import get_server_info, update_server_info, load_config, save_config
 from collections import defaultdict
 
 VERBOSE = False
 
 console_buffer = []
 log_dict = defaultdict(list)
-
-console_emptier = 0
 
 def poll_log_file(guild_id, loop, console, chat, bot):
     from utils.minecraft import build_log
@@ -118,20 +116,32 @@ def get_usernames(guild_id):
 async def start_log_buffer_task(self):
     config = load_config()
     while True:
-        for guild_id, messages in log_dict.items():
+        log_dict_copy = log_dict.copy()
+        for guild_id, messages in log_dict_copy.items():
             # Send the grouped messages to the appropriate channels
             console_channel = await self.bot.fetch_channel(config.get("guilds").get(str(guild_id)).get("mc_console_channel_id"))
 
             # Join the messages and send them to Discord (adjust size limit if needed)
-            joined_messages = "\n".join(messages)
-            if len(joined_messages) > 2000:
-                # Split the message if it's too long (Discord message limit is 2000 characters)
-                part1 = joined_messages[:1900]
-                part2 = joined_messages[1900:]
-                await console_channel.send(f"```{part1}```")
-                await console_channel.send(f"```{part2}```")
+            joined = "\n".join(messages)
+            if len(joined) > 7600:  # 1900 * 4
+                await console_channel.send(f"```{joined[:1900]}```")
+                await console_channel.send(f"```{joined[1900:3800]}```")
+                await console_channel.send(f"```{joined[3800:5700]}```")
+                await console_channel.send(f"```{joined[5700:7600]}```")
+            elif len(joined) > 5700:
+                await console_channel.send(f"```{joined[:1900]}```")
+                await console_channel.send(f"```{joined[1900:3800]}```")
+                await console_channel.send(f"```{joined[3800:5700]}```")
+                await console_channel.send(f"```{joined[5700:]}```")
+            elif len(joined) > 3800:
+                await console_channel.send(f"```{joined[:1900]}```")
+                await console_channel.send(f"```{joined[1900:3800]}```")
+                await console_channel.send(f"```{joined[3800:]}```")
+            elif len(joined) > 1900:
+                await console_channel.send(f"```{joined[:1900]}```")
+                await console_channel.send(f"```{joined[1900:]}```")
             else:
-                await console_channel.send(f"```{joined_messages}```")
+                await console_channel.send(f"```{joined}```")
 
         # Clear the log_dict after sending
         log_dict.clear()
@@ -152,5 +162,10 @@ async def startlogging(self, guild_id):
 
     threading.Thread(target=poll_log_file, args=(guild_id, loop, console, chat, botchannel), daemon=True).start()
     print("this was fine 4")
-    loop.create_task(start_log_buffer_task(self))
+    console_emptier = config.get("console_emptier")
+    if not console_emptier:
+        print("STARTING THE CONSOLE EMPTIER TASK")
+        config["console_emptier"] = 1
+        save_config(config)
+        loop.create_task(start_log_buffer_task(self))
     print("this was fine 5")

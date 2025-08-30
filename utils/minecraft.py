@@ -13,7 +13,7 @@ WHITELIST = "whitelist.json"
 
 POLLSECONDS = 3
 
-VERBOSE = True
+VERBOSE = False
 
 hostname = socket.gethostname()
 local_ip = socket.gethostbyname(hostname)
@@ -81,7 +81,7 @@ async def server_status_check(self, msg, guild_id):
         await asyncio.sleep(POLLSECONDS)
 
 async def startserver(self, msg, guild_id):
-    print("starting " + build_run(get_server_info(guild_id).get("serverid")) + " server")
+    print("starting " + get_server_info(guild_id).get("serverid") + " server")
     await asyncio.create_subprocess_shell(
         build_run(get_server_info(guild_id).get("serverid")),
         stdout=asyncio.subprocess.PIPE,
@@ -115,10 +115,12 @@ async def checkserversup(self):
                     admin = guild_data.get("mc_console_perms_role_id")
                     if botchannel:
                         await botchannel.send(f"{server_info.get('serverid')} server has crashed twice in 10 minutes. Please check in <@&{admin}>")
+                        update_server_info("up", 0, guild_id)
                         return
 
                 if botchannel:
-                    msg = await botchannel.send(f"{server_info.get('serverid')} server appears to be down. Attempting to restart...")
+                    await botchannel.send(f"{server_info.get('serverid')} server appears to be down. Attempting to restart...")
+                    msg = await botchannel.send(f"{server_info.get('serverid')} server is restarting...")
                     await startserver(self, msg, guild_id)
                     print("successfully started server, hopefully...")
                     update_server_info("lastrevival", time.time(), guild_id)
