@@ -9,7 +9,6 @@ from utils.perms import *
 
 load_dotenv()
 
-CONFIG_FILE = os.getenv("CONFIG_FILE")
 config = load_config()
 
 class IDSetterBot(commands.Cog):

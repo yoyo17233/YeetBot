@@ -5,15 +5,18 @@
             "snoopie_role_id": 1388807718428606525,
             "snoopie_perms_role_id": 805646721408696360,
             "mc_perms_role_id": 1394496967081590875,
-            "mc_console_perms_role_id": 805646721408696360,
+            "mc_console_perms_role_id": 1174595187968839714,
             "mc_bot_channel_id": 875145448128667698,
             "mc_chat_channel_id": 1389054542384992277,
             "mc_console_channel_id": 1389054494867849226,
             "ServerInfo": {
-                "logging": 0,
-                "serverstarting": 1,
-                "serverid": "Oceanblock2",
-                "serverport": 25566
+                "logging": 1,
+                "up": 1,
+                "serverstarting": 0,
+                "serverid": "Skies2",
+                "serverport": 25566,
+                "deathmsg": "chat",
+                "lastrevival": 1757699384.7412987
             },
             "ServerList": [
                 "Oceanblock2",
@@ -25,23 +28,27 @@
             "snoopie_channel_id": 1,
             "snoopie_role_id": 1,
             "snoopie_perms_role_id": 1,
-            "mc_perms_role_id": 210914065986486272,
-            "mc_console_perms_role_id": 210914065986486272,
+            "mc_perms_role_id": 1411179943194529913,
+            "mc_console_perms_role_id": 1411179943194529913,
             "mc_bot_channel_id": 1407169628068905030,
             "mc_chat_channel_id": 1407170764183965737,
             "mc_console_channel_id": 1407170920442888223,
             "ServerInfo": {
-                "logging": 0,
+                "logging": 1,
+                "up": 1,
                 "serverstarting": 0,
-                "serverid": "servername",
-                "serverport": 25565
+                "serverid": "WPIEsports",
+                "serverport": 25565,
+                "deathmsg": "chat",
+                "lastrevival": 1757878562.1410103
             },
             "ServerList": [
-                "servername"
+                "WPIEsports"
             ]
         }
     },
     "admins": [
         242420160227573760
-    ]
+    ],
+    "console_emptier": 1
 }

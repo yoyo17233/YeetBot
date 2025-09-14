@@ -6,20 +6,24 @@ from utils.utilities import update_server_info, get_server_info, load_config, sa
 from utils.minecraft import is_server_up
 from cogs.yeetbot import startlogging
 
+VERBOSE = True
+
 DEFAULT_GUILD_CONFIG = {
-    "snoopie_channel_id": 0,
-    "snoopie_role_id": 0,
-    "snoopie_perms_role_id": 0,
-    "mc_perms_role_id": 0,
-    "mc_console_perms_role_id": 0,
-    "mc_bot_channel_id": 0,
-    "mc_chat_channel_id": 0,
-    "mc_console_channel_id": 0,
+    "snoopie_channel_id": 1,
+    "snoopie_role_id": 1,
+    "snoopie_perms_role_id": 1,
+    "mc_perms_role_id": 1,
+    "mc_console_perms_role_id": 1,
+    "mc_bot_channel_id": 1,
+    "mc_chat_channel_id": 1,
+    "mc_console_channel_id": 1,
     "ServerInfo": {
         "logging": 0,
         "serverstarting": 0,
         "serverid": "servername",
-        "serverport": 25565
+        "serverport": 25567,
+        "deathmsg": "chat",
+        "lastrevival": 0
     },
     "ServerList":["servername"]
 }
@@ -51,10 +55,12 @@ async def on_ready():
         for guild in bot.guilds:
             update_server_info("serverstarting", 0, guild.id)
             if is_server_up(guild.id):
+                update_server_info("up", 1, guild.id)
                 print(f"Starting logging for guild {guild.id}")
-                await startlogging(bot.get_cog("YeetBot"), YEET)
+                await startlogging(bot.get_cog("YeetBot"), guild.id)
             else:
-                update_server_info("logging", 0)
+                update_server_info("up", 0, guild.id)
+                update_server_info("logging", 0, guild.id)
 
     except Exception as e:
         print(f"⚠️ Error syncing commands: {e}")

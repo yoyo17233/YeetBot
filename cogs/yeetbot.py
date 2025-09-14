@@ -1,6 +1,6 @@
 import os, discord
 from dotenv import load_dotenv
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord import app_commands
 from discord.app_commands import AppCommandError, CheckFailure
 from utils.polling import *
@@ -8,35 +8,49 @@ from utils.utilities import *
 from utils.perms import *
 from utils.minecraft import *
 
+VERBOSE = False
+
 load_dotenv()
 
-CONFIG_FILE = os.getenv("CONFIG_FILE")
 config = load_config()
 
 RCON_PASSWORD = os.getenv("RCON_PASSWORD")
-RCON_PORT = int(os.getenv("RCON_PORT"))
 LOGFILE = os.getenv("LOGFILE")
 POLLSECONDS = 3
 
 all_servers = [server for guild in config["guilds"].values() for server in guild["ServerList"]]
 
-        
 async def handle_message(self, message):
+    if(VERBOSE): print("handling message...")
     if message.author == self.bot.user:
         return
+    if(VERBOSE): print("message is not from a bot...")
+    if(VERBOSE): print("message content = " + message.content)
+    if(VERBOSE): print("message channel = " + str(message.channel.id))
     if message.channel.id == config.get("guilds").get(str(message.guild.id)).get("mc_chat_channel_id"):
-        command(f"say <{message.author.global_name}> {message.content}")
-    
+        if(VERBOSE): print("channel matched, sending command")
+        command(f"say §9<{message.author.global_name}>§r {message.content}", message.guild.id)
+        if(VERBOSE): print("success chat send")
     elif message.channel.id == config.get("guilds").get(str(message.guild.id)).get("mc_console_channel_id"):
+        if(VERBOSE): print("correct console channel")
         if has_mc_console_perm(message.guild, message.author):
-            response = command(message.content)
+            if(VERBOSE): print("yes perms")
+            response = command(message.content, message.guild.id)
+            if(VERBOSE): 
+                if(response): print("response gotten, response looks like: " + response)
             if response.strip():
+                if(VERBOSE): print("sending message...")
                 await message.channel.send(f"```{response}```")
 
 class YeetBot(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.checkservervalue.start()
         
+    @tasks.loop(minutes=1)
+    async def checkservervalue(self):
+        await checkserversup(self)
+
     @commands.Cog.listener()
     @has_mc_perm()
     async def on_message(self, message):
@@ -57,7 +71,7 @@ class YeetBot(commands.Cog):
             return
 
         await interaction.response.defer()
-        msg = await interaction.followup.send(f"Starting {get_server_info(interaction.guild.id).get("server_")} server...", wait=True)
+        msg = await interaction.followup.send(f"Starting {get_server_info(interaction.guild.id).get('serverid')} server...", wait=True)
         await startserver(self, msg, interaction.guild_id)
 
     @app_commands.command(name="stop", description="Stops the currently selected minecraft server")
@@ -69,8 +83,9 @@ class YeetBot(commands.Cog):
         if not is_server_up(interaction.guild.id):
             await interaction.response.send_message("Server isn't running? Dumbass")
             return
-        command("stop")
-        await interaction.response.send_message(f"❌ {get_server_info(interaction.guild.id).get("serverid")} Server is now offline! ❌")
+        command("stop", interaction.guild_id)
+        update_server_info("up", 0, interaction.guild_id)
+        await interaction.response.send_message(f"❌ {get_server_info(interaction.guild.id).get('serverid')} Server is now offline! ❌")
         #await self.bot.change_presence(
         #    activity=discord.Game("Server Offline ❌"),
         #)
@@ -90,8 +105,9 @@ class YeetBot(commands.Cog):
             await interaction.response.send_message("Let it finish starting, goddamn it")
             return
         else:
-            command("stop")
-            await interaction.response.send_message(f"❌ {get_server_info(interaction.guild.id).get("serverid")} Server is now offline! ❌")
+            command("stop", interaction.guild_id)
+            update_server_info("up", 0, interaction.guild_id)
+            await interaction.response.send_message(f"❌ {get_server_info(interaction.guild.id).get('serverid')} Server is now offline! ❌")
             #await self.bot.change_presence(
             #    activity=discord.Game("Server Offline ❌"),
             #)
@@ -142,12 +158,12 @@ class YeetBot(commands.Cog):
             #await self.bot.change_presence(
             #    activity=discord.Game(f"{get_server_info(interaction.guild.id).get("serverid")}✅"),
             #)
-            await message.edit(content=f"✅ {get_server_info(interaction.guild.id).get("serverid")} Server is online! ✅")
+            await message.edit(content=f"✅ {get_server_info(interaction.guild.id).get('serverid')} Server is online! ✅")
         else:
             #await self.bot.change_presence(
             #    activity=discord.Game("Server Offline ❌"),
             #)
-            await message.edit(content=f"❌ {get_server_info(interaction.guild.id).get("serverid")} Server is offline! ❌")
+            await message.edit(content=f"❌ {get_server_info(interaction.guild.id).get('serverid')} Server is offline! ❌")
 
     @app_commands.command(name="list", description="Lists the current players on the active server")
     @has_mc_perm()
@@ -158,7 +174,7 @@ class YeetBot(commands.Cog):
         if not is_server_up(interaction.guild.id):
             await interaction.response.send_message("Server isn't on")
             return
-        await interaction.response.send_message(f"```{command("list")}```")
+        await interaction.response.send_message(f"```{command('list', interaction.guild_id)}```")
 
     @app_commands.command(name="tps", description="Sends information regarding Ticks Per Second of the server (SkyFactory only)")
     @has_mc_perm()
@@ -170,9 +186,9 @@ class YeetBot(commands.Cog):
             await interaction.response.send_message("Server isn't on")
             return
         if get_server_info(interaction.guild.id).get("serverid") != "SkyFactory5":
-            await interaction.response.send_message(f"```{command("neoforge tps")}```")
+            await interaction.response.send_message(f"```{command('neoforge tps', interaction.guild_id)}```")
             return
-        await interaction.response.send_message(f"```{command("forge tps")}```")
+        await interaction.response.send_message(f"```{command('forge tps', interaction.guild_id)}```")
 
     @app_commands.command(name="say", description="Says a message in minecraft chat")
     @has_mc_perm()

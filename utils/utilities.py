@@ -20,8 +20,6 @@ hostname = socket.gethostname()
 local_ip = socket.gethostbyname(hostname)
 RCON_IP = local_ip
 RCON_PASSWORD = os.getenv("RCON_PASSWORD")
-RCON_PORT = int(os.getenv("RCON_PORT"))
-
 
 def load_config():
     with open(CONFIG_FILE, "r") as f:
@@ -82,10 +80,10 @@ def ask_gemini(prompt: str) -> str:
     print("Received response from Gemini: ", response.text)
     return response.text
 
-async def animate(msg):
-    serverid = get_server_info().get("serverid")
+async def animate(msg, guild_id):
+    serverid = get_server_info(guild_id).get("serverid")
     dots = -1
-    while get_server_info().get("serverstarting"):
+    while get_server_info(guild_id).get("serverstarting"):
         dots = (dots + 1) % 3
         await msg.edit(content=f"Starting {serverid} server{'.' * (dots + 1)}")
         await asyncio.sleep(SLEEPTIME)
