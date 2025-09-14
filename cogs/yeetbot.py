@@ -29,7 +29,7 @@ async def handle_message(self, message):
     if(VERBOSE): print("message channel = " + str(message.channel.id))
     if message.channel.id == config.get("guilds").get(str(message.guild.id)).get("mc_chat_channel_id"):
         if(VERBOSE): print("channel matched, sending command")
-        command(f"say <{message.author.global_name}> {message.content}", message.guild.id)
+        command(f"say §9<{message.author.global_name}>§r {message.content}", message.guild.id)
         if(VERBOSE): print("success chat send")
     elif message.channel.id == config.get("guilds").get(str(message.guild.id)).get("mc_console_channel_id"):
         if(VERBOSE): print("correct console channel")
