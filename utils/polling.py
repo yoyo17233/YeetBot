@@ -162,10 +162,10 @@ async def startlogging(self, guild_id):
 
     threading.Thread(target=poll_log_file, args=(guild_id, loop, console, chat, botchannel), daemon=True).start()
     print("this was fine 4")
-    console_emptier = config.get("console_emptier")
+    console_emptier = config.get("guilds", {}).get(str(guild_id), {}).get("console_emptier")
     if not console_emptier:
         print("STARTING THE CONSOLE EMPTIER TASK")
-        config["console_emptier"] = 1
+        config["guilds"][str(guild_id)]["console_emptier"] = 1
         save_config(config)
         loop.create_task(start_log_buffer_task(self))
     print("this was fine 5")
