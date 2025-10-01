@@ -1,4 +1,4 @@
-import os
+import os, sys, io
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
@@ -7,6 +7,9 @@ from utils.minecraft import is_server_up
 from cogs.yeetbot import startlogging
 
 VERBOSE = True
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8")
 
 DEFAULT_GUILD_CONFIG = {
     "snoopie_channel_id": 1,
