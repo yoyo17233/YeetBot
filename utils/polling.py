@@ -26,7 +26,7 @@ def poll_log_file(guild_id, loop, console, chat, bot):
                 last_position = f.tell()
 
             for line in new_lines:
-                if(VERBOSE): print("newlines found in guildid " + guild_id)
+                if(VERBOSE): print("newlines found in guildid " + str(guild_id))
                 line = line.strip()
                 if line:
                     if(VERBOSE): print("line found = " + line)
@@ -64,6 +64,7 @@ async def send_log_to_discord(guild_id, message, consolechannel, chatchannel, bo
             if(VERBOSE): print("usernames are: " + str(usernames))
             if newmessage.startswith(tuple(usernames)):
                 if(VERBOSE): print("6")
+                if(VERBOSE): print("sending ONE message into the chatchannel...")
                 await chatchannel.send(f"```{message[message.index('<'):]}```")
                 return
     if botchannel:
@@ -71,9 +72,11 @@ async def send_log_to_discord(guild_id, message, consolechannel, chatchannel, bo
             newmessage = message[message.index('[Server thread/INFO] [net.minecraft.server.MinecraftServer/]:') + 62:]
             if newmessage.startswith(tuple(usernames)):
                 if(get_server_info(guild_id).get("deathmsg") == "bot"):
+                    if(VERBOSE): print("sending ONE message into the botchannel...")
                     await botchannel.send(f"```{newmessage}```")
                     return
                 elif(get_server_info(guild_id).get("deathmsg") == "chat"):
+                    if(VERBOSE): print("sending ONE message into the chatchannel...")
                     await chatchannel.send(f"```{newmessage}```")
                     return
                 else:
@@ -114,6 +117,7 @@ def get_usernames(guild_id):
 #        await asyncio.sleep(1)
 
 async def start_log_buffer_task(self):
+    print("started log buffer task...")
     config = load_config()
     while True:
         log_dict_copy = log_dict.copy()
@@ -148,24 +152,24 @@ async def start_log_buffer_task(self):
         await asyncio.sleep(1)
 
 async def startlogging(self, guild_id):
-    #print("attempting to start logging")
+    if(VERBOSE): print("attempting to start logging")
     update_server_info("logging", 1, guild_id)
     loop = asyncio.get_running_loop()
-    #print("this was fine 1")
+    if(VERBOSE): print("this was fine 1")
     config = load_config()
-    #print("this was fine 2")
+    if(VERBOSE): print("this was fine 2")
 
     botchannel = await self.bot.fetch_channel(config.get("guilds").get(str(guild_id)).get("mc_bot_channel_id"))
     console = await self.bot.fetch_channel(config.get("guilds").get(str(guild_id)).get("mc_console_channel_id"))
     chat = await self.bot.fetch_channel(config.get("guilds").get(str(guild_id)).get("mc_chat_channel_id"))
-    #print("this was fine 3")
+    if(VERBOSE): print("this was fine 3")
 
     threading.Thread(target=poll_log_file, args=(guild_id, loop, console, chat, botchannel), daemon=True).start()
-    print("this was fine 4")
-    console_emptier = config.get("guilds", {}).get(str(guild_id), {}).get("console_emptier")
+    if(VERBOSE): print("this was fine 4")
+    console_emptier = config.get('console_emptier')
     if not console_emptier:
-        print("STARTING THE CONSOLE EMPTIER TASK")
-        config["guilds"][str(guild_id)]["console_emptier"] = 1
+        if(VERBOSE): print("STARTING THE CONSOLE EMPTIER TASK")
+        config["console_emptier"] = 1
         save_config(config)
         loop.create_task(start_log_buffer_task(self))
-    print("this was fine 5")
+    if(VERBOSE): print("this was fine 5")

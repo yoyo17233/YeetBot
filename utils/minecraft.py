@@ -93,7 +93,7 @@ async def checkserversup(self):
     print("Checking if any servers are down...")
     
     for guild_id, guild_data in config.get("guilds").items():
-        print(f"Checking guild {guild_id}...")
+        print(f"Checking guild {guild_id} for crashes...")
         
         if not is_server_up(guild_id):
             server_info = get_server_info(guild_id)
